@@ -4,7 +4,7 @@
 			
 			{% set any_in_chapter = namespace(value=false) %}
 			{% for ff in form_features %}
-				{% if ff.startswith(tome|string + "_" + chapter[0]|string) %}
+				{% if ff.startswith(tome|string + "_" + chapter[0]|string + "_") %}
 					{% set any_in_chapter.value = true %}
 				{% endif %}
 			{% endfor %}
