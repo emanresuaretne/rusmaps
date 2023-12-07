@@ -105,6 +105,7 @@ def get_features_legend_template():
         cache = json.loads(form_features.pop('cache'))
     except KeyError:
         cache = []
+    form_features.pop('period')
     form_features = list(form_features.keys())
     return fl.render_template("features_legend.html", sort_by=sort_by,
                               tomes=tomes, themes=themes, authors=authors,
@@ -168,4 +169,4 @@ def update():
 
 
 if __name__ == '__main__':
-    app.run(use_reloader=False)
+    app.run(debug=True, use_reloader=False, port=1166)
