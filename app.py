@@ -168,4 +168,4 @@ def update():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, use_reloader=False, port=1159)
+    app.run(use_reloader=False)
