@@ -4,7 +4,8 @@
 			
 			{% set any_in_chapter = namespace(value=false) %}
 			{% for ff in form_features %}
-				{% if ff.startswith(tome|string + "_" + chapter[0]|string + "_") %}
+				{% if ( ff.startswith(tome|string + "_" + chapter[0]|string + "_") or
+						ff.startswith(tome|string + "_" + chapter[0]|string + ".") ) %}
 					{% set any_in_chapter.value = true %}
 				{% endif %}
 			{% endfor %}
@@ -89,7 +90,8 @@
 			
 			{% set any_in_chapter = namespace(value=false) %}
 			{% for ff in form_features %}
-				{% if ff.startswith(chapter[0]|string + "_" + chapter[1]|string) %}
+				{% if ( ff.startswith(chapter[0]|string + "_" + chapter[1]|string + "_") or
+						ff.startswith(chapter[0]|string + "_" + chapter[1]|string + ".") ) %}
 					{% set any_in_chapter.value = true %}
 				{% endif %}
 			{% endfor %}
@@ -174,7 +176,8 @@
 			
 			{% set any_in_chapter = namespace(value=false) %}
 			{% for ff in form_features %}
-				{% if ff.startswith(chapter[0]|string + "_" + chapter[1]|string) %}
+				{% if ( ff.startswith(chapter[0]|string + "_" + chapter[1]|string + "_") or
+						ff.startswith(chapter[0]|string + "_" + chapter[1]|string + ".") ) %}
 					{% set any_in_chapter.value = true %}
 				{% endif %}
 			{% endfor %}
