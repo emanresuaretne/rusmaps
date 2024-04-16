@@ -1,0 +1,273 @@
+{% if sort_by == 'tomes' %}
+	{% for tome, chapters in tomes.items() %}
+		{% for chapter, maps in chapters.items() %}
+			
+			{% set any_in_chapter = namespace(value=false) %}
+			{% for ff in form_features %}
+				{% if ( ff.startswith(tome|string + "_" + chapter[0]|string + "_") or
+						ff.startswith(tome|string + "_" + chapter[0]|string + ".") ) %}
+					{% set any_in_chapter.value = true %}
+				{% endif %}
+			{% endfor %}
+			
+			{% if any_in_chapter.value: %}
+				<div id="legend_meta" name="{{ tome }}_{{ chapter[0] }}_chapter_legend">
+					Том {{ tome }}. Глава {{ chapter[0] }}: {{ chapter[1] }}
+				</div>
+				{% for map, features in maps.items() %}
+					{% if map[0]: %}
+						
+						{% set any_in_map = namespace(value=false) %}
+						{% for ff in form_features %}
+							{% if ff.startswith(tome|string + "_" + chapter[0]|string + "." + map[0]|string) %}
+								{% set any_in_map.value = true %}
+							{% endif %}
+						{% endfor %}
+						
+						{% if any_in_map.value: %}
+							<div id="legend_meta" name="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}_map_legend">
+								Карта {{ map[0] }}. {{ map[1] }}
+							</div>
+							{% for feature in features %}
+							
+								{% set any = namespace(value=false) %}
+								{% for ff in form_features %}
+									{% if ff.startswith(tome|string + "_" + chapter[0]|string + "." + map[0]|string + "_" + feature[-4]|string + "_") %}
+										{% set any.value = true %}
+									{% endif %}
+								{% endfor %}
+								
+								{% if any.value: %}
+									<div id="legend_meta" name="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}_{{ feature[-4] }}_feature_legend">
+										{% if feature[-2] == "ареал": %}
+											<div id="legend_color" style="background-color: {{ feature[-1] }}">
+											</div>
+										{% else %}
+											<img id="legend_icon" src="/maps/Том {{ tome }}, карта {{ chapter[0] }}.{{ map[0] }}/{{ feature[-4] }} {{ feature[-2] }}.png">
+										{% endif %}
+										<div style="flex: 1; padding-left: 5px;">
+											{{ feature[-4] }}. {{ feature[-3] }}
+										</div>
+									</div>
+								{% endif %}
+							{% endfor %}
+						{% endif %}
+					{% else %}
+						<div id="legend_meta" name="{{ tome }}_{{ chapter[0] }}_map_legend">
+							Карта. {{ map[1] }}
+						</div>
+						{% for feature in features %}
+							
+							{% set any = namespace(value=false) %}
+							{% for ff in form_features %}
+								{% if ff.startswith(tome|string + "_" + chapter[0]|string + "_" + feature[-4]|string + "_") %}
+									{% set any.value = true %}
+								{% endif %}
+							{% endfor %}
+							
+							{% if any.value: %}
+								<div id="legend_meta" name="{{ tome }}_{{ chapter[0] }}_{{ feature[-4] }}_feature_legend">
+									{% if feature[-2] == "ареал": %}
+										<div id="legend_color" style="background-color: {{ feature[-1] }}">
+										</div>
+									{% else %}
+										<img id="legend_icon" src="/maps/Том {{ tome }}, карта {{ chapter[0] }}/{{ feature[-4] }} {{ feature[-2] }}.png">
+									{% endif %}
+									<div style="flex: 1; padding-left: 5px;">
+										{{ feature[-4] }}. {{ feature[-3] }}
+									</div>
+								</div>
+							{% endif %}
+						{% endfor %}
+					{% endif %}
+				{% endfor %}
+			{% endif %}
+		{% endfor %}
+	{% endfor %}
+{% elif sort_by == 'themes' %}
+	{% for theme, chapters in themes.items() %}
+		{% for chapter, maps in chapters.items() %}
+			
+			{% set any_in_chapter = namespace(value=false) %}
+			{% for ff in form_features %}
+				{% if ( ff.startswith(chapter[0]|string + "_" + chapter[1]|string + "_") or
+						ff.startswith(chapter[0]|string + "_" + chapter[1]|string + ".") ) %}
+					{% set any_in_chapter.value = true %}
+				{% endif %}
+			{% endfor %}
+			
+			{% if any_in_chapter.value: %}
+				<div id="legend_meta" name="{{ chapter[0] }}_{{ chapter[1] }}_chapter_legend">
+					Том {{ chapter[0] }}. Глава {{ chapter[1] }}: {{ chapter[2] }}
+				</div>
+				{% for map, features in maps.items() %}
+					{% if map[0]: %}
+						
+						{% set any_in_map = namespace(value=false) %}
+						{% for ff in form_features %}
+							{% if ff.startswith(chapter[0]|string + "_" + chapter[1]|string + "." + map[0]|string) %}
+								{% set any_in_map.value = true %}
+							{% endif %}
+						{% endfor %}
+						
+						{% if any_in_map.value: %}
+							<div id="legend_meta" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_map_legend">
+								Карта {{ map[0] }}. {{ map[1] }}
+							</div>
+							{% for feature in features %}
+							
+								{% set any = namespace(value=false) %}
+								{% for ff in form_features %}
+									{% if ff.startswith(chapter[0]|string + "_" + chapter[1]|string + "." + map[0]|string + "_" + feature[-4]|string + "_") %}
+										{% set any.value = true %}
+									{% endif %}
+								{% endfor %}
+								
+								{% if any.value: %}
+									<div id="legend_meta" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_feature_legend">
+										{% if feature[-2] == "ареал": %}
+											<div id="legend_color" style="background-color: {{ feature[-1] }}">
+											</div>
+										{% else %}
+											<img id="legend_icon" src="/maps/Том {{ chapter[0] }}, карта {{ chapter[1] }}.{{ map[0] }}/{{ feature[-4] }} {{ feature[-2] }}.png">
+										{% endif %}
+										<div style="flex: 1; padding-left: 5px;">
+											{{ feature[-4] }}. {{ feature[-3] }}
+										</div>
+									</div>
+								{% endif %}
+							{% endfor %}
+						{% endif %}
+					{% else %}
+						<div id="legend_meta" name="{{ chapter[0] }}_{{ chapter[1] }}_map_legend">
+							Карта. {{ map[1] }}
+						</div>
+						{% for feature in features %}
+							
+							{% set any = namespace(value=false) %}
+							{% for ff in form_features %}
+								{% if ff.startswith(chapter[0]|string + "_" + chapter[1]|string + "_" + feature[-4]|string + "_") %}
+									{% set any.value = true %}
+								{% endif %}
+							{% endfor %}
+							
+							{% if any.value: %}
+								<div id="legend_meta" name="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_feature_legend">
+									{% if feature[-2] == "ареал": %}
+										<div id="legend_color" style="background-color: {{ feature[-1] }}">
+										</div>
+									{% else %}
+										<img id="legend_icon" src="/maps/Том {{ chapter[0] }}, карта {{ chapter[1] }}/{{ feature[-4] }} {{ feature[-2] }}.png">
+									{% endif %}
+									<div style="flex: 1; padding-left: 5px;">
+										{{ feature[-4] }}. {{ feature[-3] }}
+									</div>
+								</div>
+							{% endif %}
+						{% endfor %}
+					{% endif %}
+				{% endfor %}
+			{% endif %}
+		{% endfor %}
+	{% endfor %}
+{% elif sort_by == 'authors' %}
+	{% for author, chapters in authors.items() %}
+		{% for chapter, maps in chapters.items() %}
+			
+			{% set any_in_chapter = namespace(value=false) %}
+			{% for ff in form_features %}
+				{% if ( ff.startswith(chapter[0]|string + "_" + chapter[1]|string + "_") or
+						ff.startswith(chapter[0]|string + "_" + chapter[1]|string + ".") ) %}
+					{% set any_in_chapter.value = true %}
+				{% endif %}
+			{% endfor %}
+			
+			{% if any_in_chapter.value: %}
+				<div id="legend_meta" name="{{ chapter[0] }}_{{ chapter[1] }}_chapter_legend">
+					Том {{ chapter[0] }}. Глава {{ chapter[1] }}: {{ chapter[2] }}
+				</div>
+				{% for map, features in maps.items() %}
+					{% if map[0]: %}
+						
+						{% set any_in_map = namespace(value=false) %}
+						{% for ff in form_features %}
+							{% if ff.startswith(chapter[0]|string + "_" + chapter[1]|string + "." + map[0]|string) %}
+								{% set any_in_map.value = true %}
+							{% endif %}
+						{% endfor %}
+						
+						{% if any_in_map.value: %}
+							<div id="legend_meta" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_map_legend">
+								Карта {{ map[0] }}. {{ map[1] }}
+							</div>
+							{% for feature in features %}
+							
+								{% set any = namespace(value=false) %}
+								{% for ff in form_features %}
+									{% if ff.startswith(chapter[0]|string + "_" + chapter[1]|string + "." + map[0]|string + "_" + feature[-4]|string + "_") %}
+										{% set any.value = true %}
+									{% endif %}
+								{% endfor %}
+								
+								{% if any.value: %}
+									<div id="legend_meta" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_feature_legend">
+										{% if feature[-2] == "ареал": %}
+											<div id="legend_color" style="background-color: {{ feature[-1] }}">
+											</div>
+										{% else %}
+											<img id="legend_icon" src="/maps/Том {{ chapter[0] }}, карта {{ chapter[1] }}.{{ map[0] }}/{{ feature[-4] }} {{ feature[-2] }}.png">
+										{% endif %}
+										<div style="flex: 1; padding-left: 5px;">
+											{{ feature[-4] }}. {{ feature[-3] }}
+										</div>
+									</div>
+								{% endif %}
+							{% endfor %}
+						{% endif %}
+					{% else %}
+						<div id="legend_meta" name="{{ chapter[0] }}_{{ chapter[1] }}_map_legend">
+							Карта. {{ map[1] }}
+						</div>
+						{% for feature in features %}
+							
+							{% set any = namespace(value=false) %}
+							{% for ff in form_features %}
+								{% if ff.startswith(chapter[0]|string + "_" + chapter[1]|string + "_" + feature[-4]|string + "_") %}
+									{% set any.value = true %}
+								{% endif %}
+							{% endfor %}
+							
+							{% if any.value: %}
+								<div id="legend_meta" name="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_feature_legend">
+									{% if feature[-2] == "ареал": %}
+										<div id="legend_color" style="background-color: {{ feature[-1] }}">
+										</div>
+									{% else %}
+										<img id="legend_icon" src="/maps/Том {{ chapter[0] }}, карта {{ chapter[1] }}/{{ feature[-4] }} {{ feature[-2] }}.png">
+									{% endif %}
+									<div style="flex: 1; padding-left: 5px;">
+										{{ feature[-4] }}. {{ feature[-3] }}
+									</div>
+								</div>
+							{% endif %}
+						{% endfor %}
+					{% endif %}
+				{% endfor %}
+			{% endif %}
+		{% endfor %}
+	{% endfor %}
+{% endif %}
+{% for overlay in cache %}
+	<div id="legend_meta">
+		{% for colour in overlay[:-2] %}
+			<div id="legend_color" style="background-color: {{ colour }}">
+			</div>
+			+
+		{% endfor %}
+		<div id="legend_color" style="background-color: {{ overlay[-2] }}">
+		</div>
+		=
+		<div id="legend_color" style="background-color: {{ overlay[-1] }}">
+		</div>
+	</div>
+{% endfor %}

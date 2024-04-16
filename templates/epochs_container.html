@@ -1,0 +1,18 @@
+{% for period in ["empire_governorates", "soviet_republics", "soviet_oblasts"] %}
+	<label>
+		{% if epoch == period %}
+			<input type="checkbox" name="period" value="{{period}}" onclick="updatePageContent(sortByValue='{{ sort_by }}', periodValue=this.value)" checked=true>
+		{% else %}
+			<input type="checkbox" name="period" value="{{period}}" onclick="updatePageContent(sortByValue='{{ sort_by }}', periodValue=this.value)">
+		{% endif %}
+		<span>
+			{% if period == "empire_governorates" %}
+				Имперские губернии
+			{% elif period == 'soviet_republics' %}
+				Советские республики
+			{% elif period == 'soviet_oblasts' %}
+				Советские области
+			{% endif %}
+		</span>
+	</label>
+{% endfor %}

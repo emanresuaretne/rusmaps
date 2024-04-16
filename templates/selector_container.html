@@ -1,0 +1,396 @@
+<form id="sorts_form" method="post">
+	<div id="sort_selector">
+		{% for order in ["tomes", "themes", "authors"] %}
+			<label>
+				{% if sort_by == order %}
+					<input type="checkbox" name="sort_by" value="{{order}}" onclick="updatePageContent(sortByValue=this.value, periodValue='{{ epoch }}')" checked=true>
+				{% else %}
+					<input type="checkbox" name="sort_by" value="{{order}}" onclick="updatePageContent(sortByValue=this.value, periodValue='{{ epoch }}')">
+				{% endif %}
+				<span>
+					{% if order == "tomes" %}
+						По томам
+					{% elif order == 'themes' %}
+						По темам
+					{% elif order == 'authors' %}
+						По авторам
+					{% endif %}
+				</span>
+			</label>
+		{% endfor %}
+	</div>
+</form>
+<form id="maps_form" method="post">
+	<div id="maps_selector">
+		{% if sort_by == 'tomes' %}
+			{% for tome, chapters in tomes.items() %}
+				<div id="map_meta" style="font-size: 11pt;">
+					Том {{ tome }}
+				</div>
+				{% for chapter, maps in chapters.items() %}
+					<div id="map_meta">
+						Глава {{ chapter[0] }}: {{ chapter[1] }}. Автор(ы): {{ chapter[2] }}
+					</div>
+					{% for map, features in maps.items() %}
+						{% if map[0]: %}
+							<label>
+								{% if (tome|string + "_" + chapter[0]|string + "." + map[0]|string) in form_features %}
+									<input type="checkbox" id="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}" name="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}" class="map_selector" onclick="Selector(this.id)" checked=true>
+								{% else %}
+									<input type="checkbox" id="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}" name="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}" class="map_selector" onclick="Selector(this.id)">
+								{% endif %}
+								<span class="spanbutton">
+									Карта {{ map[0] }}. {{ map[1] }}
+								</span>
+								<input type="button" value = "▼" id="expander_{{ tome }}_{{ chapter[0] }}.{{ map[0] }}" onclick="elementCollapse(this.value, this.id)">
+							</label>
+							<div name="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}" id="features_selector">
+								{% for feature in features %}
+									{% if feature|length > 4: %}
+										{% for category in feature[:-4] %}
+											{% if category: %}
+												<div id="map_meta">
+													{{ category }}
+												</div>
+											{% endif %}
+										{% endfor %}
+									{% endif %}
+									<label>
+										{% if feature[-2] == "ареал" %}
+											{% if (tome|string + "_" + chapter[0]|string + "." + map[0]|string + "_" + feature[-4]|string) in form_features %}
+												<input type="checkbox" id="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}_{{ feature[-4] }}_areal" name="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}_{{ feature[-4] }}_areal" class="map_selector" onclick="Selector(this.id)" checked=true>
+											{% else %}
+												<input type="checkbox" id="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}_{{ feature[-4] }}_areal" name="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}_{{ feature[-4] }}_areal" class="map_selector" onclick="Selector(this.id)">
+											{% endif %}
+											<span class="spanbutton">
+												Признак {{ feature[-4] }}. {{ feature[-3] }}
+											</span>
+										{% else %}
+											{% if feature[-2] == 'изоглосса' %}
+												{% if (tome|string + "_" + chapter[0]|string + "." + map[0]|string + "_" + feature[-4]|string) in form_features %}
+													<input type="checkbox" id="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}_{{ feature[-4] }}_isogloss" name="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}_{{ feature[-4] }}_isogloss" class="map_selector" onclick="Selector(this.id)" checked=true>
+												{% else %}
+													<input type="checkbox" id="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}_{{ feature[-4] }}_isogloss" name="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}_{{ feature[-4] }}_isogloss" class="map_selector" onclick="Selector(this.id)">
+												{% endif %}
+											{% elif feature[-2] == 'маркеры' %}
+												{% if (tome|string + "_" + chapter[0]|string + "." + map[0]|string + "_" + feature[-4]|string) in form_features %}
+													<input type="checkbox" id="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}_{{ feature[-4] }}_markers" name="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}_{{ feature[-4] }}_markers" class="map_selector" onclick="Selector(this.id)" checked=true>
+												{% else %}
+													<input type="checkbox" id="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}_{{ feature[-4] }}_markers" name="{{ tome }}_{{ chapter[0] }}.{{ map[0] }}_{{ feature[-4] }}_markers" class="map_selector" onclick="Selector(this.id)">
+												{% endif %}
+											{% endif %}
+											<span class="spanbutton">
+												Признак {{ feature[-4] }}. {{ feature[-3] }} ({{ feature[-2] }})
+											</span>
+										{% endif %}
+									</label>
+								{% endfor %}
+							</div>
+						{% else %}
+							<label>
+								{% if (tome|string + "_" + chapter[0]|string) in form_features %}
+									<input type="checkbox" id="{{ tome }}_{{ chapter[0] }}" name="{{ tome }}_{{ chapter[0] }}" class="map_selector" onclick="Selector(this.id)" checked=true>
+								{% else %}
+									<input type="checkbox" id="{{ tome }}_{{ chapter[0] }}" name="{{ tome }}_{{ chapter[0] }}" class="map_selector" onclick="Selector(this.id)">
+								{% endif %}
+								<span class="spanbutton">
+									Карта. {{ map[1] }}
+								</span>
+								<input type="button" value = "▼" id="expander_{{ tome }}_{{ chapter[0] }}" onclick="elementCollapse(this.value, this.id)">
+							</label>
+							<div name="{{ tome }}_{{ chapter[0] }}" id="features_selector">
+								{% for feature in features %}
+									{% if feature|length > 4: %}
+										{% for category in feature[:-4] %}
+											{% if category: %}
+												<div id="map_meta">
+													{{ category }}
+												</div>
+											{% endif %}
+										{% endfor %}
+									{% endif %}
+									<label>
+										{% if feature[-2] == "ареал" %}
+											{% if (tome|string + "_" + chapter[0]|string + "_" + feature[-4]|string) in form_features %}
+												<input type="checkbox" id="{{ tome }}_{{ chapter[0] }}_{{ feature[-4] }}_areal" name="{{ tome }}_{{ chapter[0] }}_{{ feature[-4] }}_areal" class="map_selector" onclick="Selector(this.id)" checked=true>
+											{% else %}
+												<input type="checkbox" id="{{ tome }}_{{ chapter[0] }}_{{ feature[-4] }}_areal" name="{{ tome }}_{{ chapter[0] }}_{{ feature[-4] }}_areal" class="map_selector" onclick="Selector(this.id)">
+											{% endif %}
+											<span class="spanbutton">
+												Признак {{ feature[-4] }}. {{ feature[-3] }}
+											</span>
+										{% else %}
+											{% if feature[-2] == 'изоглосса' %}
+												{% if (tome|string + "_" + chapter[0]|string + "_" + feature[-4]|string) in form_features %}
+													<input type="checkbox" id="{{ tome }}_{{ chapter[0] }}_{{ feature[-4] }}_isogloss" name="{{ tome }}_{{ chapter[0] }}_{{ feature[-4] }}_isogloss" class="map_selector" onclick="Selector(this.id)" checked=true>
+												{% else %}
+													<input type="checkbox" id="{{ tome }}_{{ chapter[0] }}_{{ feature[-4] }}_isogloss" name="{{ tome }}_{{ chapter[0] }}_{{ feature[-4] }}_isogloss" class="map_selector" onclick="Selector(this.id)">
+												{% endif %}
+											{% elif feature[-2] == 'маркеры' %}
+												{% if (tome|string + "_" + chapter[0]|string + "_" + feature[-4]|string) in form_features %}
+													<input type="checkbox" id="{{ tome }}_{{ chapter[0] }}_{{ feature[-4] }}_markers" name="{{ tome }}_{{ chapter[0] }}_{{ feature[-4] }}_markers" class="map_selector" onclick="Selector(this.id)" checked=true>
+												{% else %}
+													<input type="checkbox" id="{{ tome }}_{{ chapter[0] }}_{{ feature[-4] }}_markers" name="{{ tome }}_{{ chapter[0] }}_{{ feature[-4] }}_markers" class="map_selector" onclick="Selector(this.id)">
+												{% endif %}
+											{% endif %}
+											<span class="spanbutton">
+												Признак {{ feature[-4] }}. {{ feature[-3] }} ({{ feature[-2] }})
+											</span>
+										{% endif %}
+									</label>
+								{% endfor %}
+							</div>
+						{% endif %}
+					{% endfor %}
+				{% endfor %}
+				<br>
+			{% endfor %}
+		{% elif sort_by == 'themes' %}
+			{% for theme, chapters in themes.items() %}
+				<div id="map_meta" style="font-size: 11pt;">
+					Тема: {{ theme }}
+				</div>
+				{% for chapter, maps in chapters.items() %}
+					<div id="map_meta">
+						Том {{ chapter[0] }}, глава {{ chapter[1] }}: {{ chapter[2] }}. Автор(ы): {{ chapter[3] }}
+					</div>
+					{% for map, features in maps.items() %}
+						{% if map[0]: %}
+							<label>
+								{% if (chapter[0]|string + "_" + chapter[1]|string + "." + map[0]|string) in form_features %}
+									<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}" class="map_selector" onclick="Selector(this.id)" checked=true>
+								{% else %}
+									<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}" class="map_selector" onclick="Selector(this.id)">
+								{% endif %}
+								<span class="spanbutton">
+									Карта {{ map[0] }}. {{ map[1] }}
+								</span>
+								<input type="button" value = "▼" id="expander_{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}" onclick="elementCollapse(this.value, this.id)">
+							</label>
+							<div name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}" id="features_selector">
+								{% for feature in features %}
+									{% if feature|length > 4: %}
+										{% for category in feature[:-4] %}
+											{% if category: %}
+												<div id="map_meta">
+													{{ category }}
+												</div>
+											{% endif %}
+										{% endfor %}
+									{% endif %}
+									<label>
+										{% if feature[-2] == "ареал" %}
+											{% if (chapter[0]|string + "_" + chapter[1]|string + "." + map[0]|string + "_" + feature[-4]|string) in form_features %}
+												<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_areal" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_areal" class="map_selector" onclick="Selector(this.id)" checked=true>
+											{% else %}
+												<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_areal" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_areal" class="map_selector" onclick="Selector(this.id)">
+											{% endif %}
+											<span class="spanbutton">
+												Признак {{ feature[-4] }}. {{ feature[-3] }}
+											</span>
+										{% else %}
+											{% if feature[-2] == 'изоглосса' %}
+												{% if (chapter[0]|string + "_" + chapter[1]|string + "." + map[0]|string + "_" + feature[-4]|string) in form_features %}
+													<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_isogloss" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_isogloss" class="map_selector" onclick="Selector(this.id)" checked=true>
+												{% else %}
+													<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_isogloss" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_isogloss" class="map_selector" onclick="Selector(this.id)">
+												{% endif %}
+											{% elif feature[-2] == 'маркеры' %}
+												{% if (chapter[0]|string + "_" + chapter[1]|string + "." + map[0]|string + "_" + feature[-4]|string) in form_features %}
+													<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_markers" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_markers" class="map_selector" onclick="Selector(this.id)" checked=true>
+												{% else %}
+													<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_markers" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_markers" class="map_selector" onclick="Selector(this.id)">
+												{% endif %}
+											{% endif %}
+											<span class="spanbutton">
+												Признак {{ feature[-4] }}. {{ feature[-3] }} ({{ feature[-2] }})
+											</span>
+										{% endif %}
+									</label>
+								{% endfor %}
+							</div>
+						{% else %}
+							<label>
+								{% if (chapter[0]|string + "_" + chapter[1]|string) in form_features %}
+									<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}" name="{{ chapter[0] }}_{{ chapter[1] }}" class="map_selector" onclick="Selector(this.id)" checked=true>
+								{% else %}
+									<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}" name="{{ chapter[0] }}_{{ chapter[1] }}" class="map_selector" onclick="Selector(this.id)">
+								{% endif %}
+								<span class="spanbutton">
+									Карта. {{ map[1] }}
+								</span>
+								<input type="button" value = "▼" id="expander_{{ chapter[0] }}_{{ chapter[1] }}" onclick="elementCollapse(this.value, this.id)">
+							</label>
+							<div name="{{ chapter[0] }}_{{ chapter[1] }}" id="features_selector">
+								{% for feature in features %}
+									{% if feature|length > 4: %}
+										{% for category in feature[:-4] %}
+											{% if category: %}
+												<div id="map_meta">
+													{{ category }}
+												</div>
+											{% endif %}
+										{% endfor %}
+									{% endif %}
+									<label>
+										{% if feature[-2] == "ареал" %}
+											{% if (chapter[0]|string + "_" + chapter[1]|string + "_" + feature[-4]|string) in form_features %}
+												<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_areal" name="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_areal" class="map_selector" onclick="Selector(this.id)" checked=true>
+											{% else %}
+												<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_areal" name="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_areal" class="map_selector" onclick="Selector(this.id)">
+											{% endif %}
+											<span class="spanbutton">
+												Признак {{ feature[-4] }}. {{ feature[-3] }}
+											</span>
+										{% else %}
+											{% if feature[-2] == 'изоглосса' %}
+												{% if (chapter[0]|string + "_" + chapter[1]|string + "_" + feature[-4]|string) in form_features %}
+													<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_isogloss" name="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_isogloss" class="map_selector" onclick="Selector(this.id)" checked=true>
+												{% else %}
+													<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_isogloss" name="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_isogloss" class="map_selector" onclick="Selector(this.id)">
+												{% endif %}
+											{% elif feature[-2] == 'маркеры' %}
+												{% if (chapter[0]|string + "_" + chapter[1]|string + "_" + feature[-4]|string) in form_features %}
+													<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_markers" name="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_markers" class="map_selector" onclick="Selector(this.id)" checked=true>
+												{% else %}
+													<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_markers" name="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_markers" class="map_selector" onclick="Selector(this.id)">
+												{% endif %}
+											{% endif %}
+											<span class="spanbutton">
+												Признак {{ feature[-4] }}. {{ feature[-3] }} ({{ feature[-2] }})
+											</span>
+										{% endif %}
+									</label>
+								{% endfor %}
+							</div>
+						{% endif %}
+					{% endfor %}
+				{% endfor %}
+				<br>
+			{% endfor %}
+		{% elif sort_by == 'authors' %}
+			{% for author, chapters in authors.items() %}
+				<div id="map_meta" style="font-size: 11pt;">
+					Автор(ы): {{ author }}
+				</div>
+				{% for chapter, maps in chapters.items() %}
+					<div id="map_meta">
+						Том {{ chapter[0] }}, глава {{ chapter[1] }}: {{ chapter[2] }}.
+					</div>
+					{% for map, features in maps.items() %}
+						{% if map[0]: %}
+							<label>
+								{% if (chapter[0]|string + "_" + chapter[1]|string + "." + map[0]|string) in form_features %}
+									<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}" class="map_selector" onclick="Selector(this.id)" checked=true>
+								{% else %}
+									<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}" class="map_selector" onclick="Selector(this.id)">
+								{% endif %}
+								<span class="spanbutton">
+									Карта {{ map[0] }}. {{ map[1] }}
+								</span>
+								<input type="button" value = "▼" id="expander_{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}" onclick="elementCollapse(this.value, this.id)">
+							</label>
+							<div name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}" id="features_selector">
+								{% for feature in features %}
+									{% if feature|length > 4: %}
+										{% for category in feature[:-4] %}
+											{% if category: %}
+												<div id="map_meta">
+													{{ category }}
+												</div>
+											{% endif %}
+										{% endfor %}
+									{% endif %}
+									<label>
+										{% if feature[-2] == "ареал" %}
+											{% if (chapter[0]|string + "_" + chapter[1]|string + "." + map[0]|string + "_" + feature[-4]|string) in form_features %}
+												<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}" class="map_selector" onclick="Selector(this.id)" checked=true>
+											{% else %}
+												<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_areal" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_areal" class="map_selector" onclick="Selector(this.id)">
+											{% endif %}
+											<span class="spanbutton">
+												Признак {{ feature[-4] }}. {{ feature[-3] }}
+											</span>
+										{% else %}
+											{% if feature[-2] == 'изоглосса' %}
+												{% if (chapter[0]|string + "_" + chapter[1]|string + "." + map[0]|string + "_" + feature[-4]|string) in form_features %}
+													<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_isogloss" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_isogloss" class="map_selector" onclick="Selector(this.id)" checked=true>
+												{% else %}
+													<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_isogloss" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_isogloss" class="map_selector" onclick="Selector(this.id)">
+												{% endif %}
+											{% elif feature[-2] == 'маркеры' %}
+												{% if (chapter[0]|string + "_" + chapter[1]|string + "." + map[0]|string + "_" + feature[-4]|string) in form_features %}
+													<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_markers" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_markers" class="map_selector" onclick="Selector(this.id)" checked=true>
+												{% else %}
+													<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_markers" name="{{ chapter[0] }}_{{ chapter[1] }}.{{ map[0] }}_{{ feature[-4] }}_markers" class="map_selector" onclick="Selector(this.id)">
+												{% endif %}
+											{% endif %}
+											<span class="spanbutton">
+												Признак {{ feature[-4] }}. {{ feature[-3] }} ({{ feature[-2] }})
+											</span>
+										{% endif %}
+									</label>
+								{% endfor %}
+							</div>
+						{% else %}
+							<label>
+								{% if (chapter[0]|string + "_" + chapter[1]|string) in form_features %}
+									<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}" name="{{ chapter[0] }}_{{ chapter[1] }}" class="map_selector" onclick="Selector(this.id)" checked=true>
+								{% else %}
+									<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}" name="{{ chapter[0] }}_{{ chapter[1] }}" class="map_selector" onclick="Selector(this.id)">
+								{% endif %}
+								<span class="spanbutton">
+									Карта. {{ map[1] }}
+								</span>
+								<input type="button" value = "▼" id="expander_{{ chapter[0] }}_{{ chapter[1] }}" onclick="elementCollapse(this.value, this.id)">
+							</label>
+							<div name="{{ chapter[0] }}_{{ chapter[1] }}" id="features_selector">
+								{% for feature in features %}
+									{% if feature|length > 4: %}
+										{% for category in feature[:-4] %}
+											{% if category: %}
+												<div id="map_meta">
+													{{ category }}
+												</div>
+											{% endif %}
+										{% endfor %}
+									{% endif %}
+									<label>
+										{% if feature[-2] == "ареал" %}
+											{% if (chapter[0]|string + "_" + chapter[1]|string + "_" + feature[-4]|string) in form_features %}
+												<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_areal" name="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_areal" class="map_selector" onclick="Selector(this.id)" checked=true>
+											{% else %}
+												<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_areal" name="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_areal" class="map_selector" onclick="Selector(this.id)">
+											{% endif %}
+											<span class="spanbutton">
+												Признак {{ feature[-4] }}. {{ feature[-3] }}
+											</span>
+										{% else %}
+											{% if feature[-2] == 'изоглосса' %}
+												{% if (chapter[0]|string + "_" + chapter[1]|string + "_" + feature[-4]|string) in form_features %}
+													<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_isogloss" name="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_isogloss" class="map_selector" onclick="Selector(this.id)" checked=true>
+												{% else %}
+													<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_isogloss" name="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_isogloss" class="map_selector" onclick="Selector(this.id)">
+												{% endif %}
+											{% elif feature[-2] == 'маркеры' %}
+												{% if (chapter[0]|string + "_" + chapter[1]|string + "_" + feature[-4]|string) in form_features %}
+													<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_markers" name="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_markers" class="map_selector" onclick="Selector(this.id)" checked=true>
+												{% else %}
+													<input type="checkbox" id="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_markers" name="{{ chapter[0] }}_{{ chapter[1] }}_{{ feature[-4] }}_markers" class="map_selector" onclick="Selector(this.id)">
+												{% endif %}
+											{% endif %}
+											<span class="spanbutton">
+												Признак {{ feature[-4] }}. {{ feature[-3] }} ({{ feature[-2] }})
+											</span>
+										{% endif %}
+									</label>
+								{% endfor %}
+							</div>
+						{% endif %}
+					{% endfor %}
+				{% endfor %}
+				<br>
+			{% endfor %}
+		{% endif %}
+	</div>
+</form>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>
+			Банк данных диалектологических карт
+		</title>
+		<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+		<style>
+			body, html {
+				height: 100%;
+				margin: 0;
+			}
+			
+			.container {
+				display: flex;
+				height: 100vh;
+			}
+			
+			.sidebar {
+				flex: 1;
+				margin: 5px;
+			}
+
+			.content {
+				flex: none;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				margin: 5px;
+			}
+			
+			#map_container {
+				max-width: 100%;
+				max-height: 100vh;
+				height: 100vh;
+				display: block;
+				margin: 0 auto;
+			}
+			
+			#map {
+				height: calc(100vh - 45px);
+			}
+			
+			#selector_container, #features_legend {
+				flex-grow: 1;
+				height: 100%;
+				overflow-y: auto;
+			}
+			
+			#selector_container::-webkit-scrollbar, #features_legend::-webkit-scrollbar {
+				display: none;
+			}
+			
+			#legend_meta {
+				padding-bottom: 2px;
+				display: flex;
+			}
+			
+			#legend_color {
+				width: 40px;
+				height: 20px;
+				border: 1px solid black;
+			}
+			
+			#legend_icon {
+				width: 40px;
+				height: 20px;
+				border: 1px solid black;
+			}
+			
+			#maps_selector {
+				display: grid;
+				gap: 5px;
+			}
+			
+			#maps_selector input[type="checkbox"] {
+				display: none;
+			}
+			
+			#maps_selector span {
+				display: inline-block;
+				padding: 10px;
+				border: 2px solid Gold;
+				border-radius: 3px;
+				color: black;
+				width: 75%;
+				font-size: 9pt;
+			}
+
+			#maps_selector input[type="checkbox"]:checked + span {
+				background-color: Gold;
+				color: black;
+			}
+			
+			#maps_selector input[type="button"] {
+				display: inline-block;
+				padding: 10px;
+				border: 2px solid Gold;
+				border-radius: 3px;
+				color: black;
+				background-color: white;
+				font-size: 9pt;
+			}
+			
+			#features_selector {
+				display: none;
+				gap: 5px;
+			}
+			
+			#features_selector input[type="checkbox"] {
+				display: none;
+			}
+			
+			#features_selector span {
+				display: inline-block;
+				padding: 10px;
+				border: 2px solid PaleVioletRed;
+				border-radius: 3px;
+				color: black;
+				width: 250px;
+			}
+
+			#features_selector input[type="checkbox"]:checked + span {
+				background-color: PaleVioletRed;
+				color: black;
+			}
+			
+			#map_meta {
+				font-size: 9pt;
+			}
+			
+			#sort_selector {
+				display: inline;
+				gap: 5px;
+			}
+			
+			#sort_selector input[type="checkbox"] {
+				display: none;
+			}
+			
+			#sort_selector span {
+				display: inline-block;
+				padding: 10px;
+				border: 2px solid SandyBrown;
+				border-radius: 3px;
+				color: black;
+				width: 60px;
+				font-size: 9pt;
+			}
+
+			#sort_selector input[type="checkbox"]:checked + span {
+				background-color: SandyBrown;
+				color: black;
+			}
+			
+			#period_selector {
+				display: inline;
+				gap: 5px;
+			}
+			
+			#period_selector input[type="checkbox"] {
+				display: none;
+			}
+			
+			#period_selector span {
+				display: inline-block;
+				padding: 10px;
+				border: 2px solid DarkSlateBlue;
+				border-radius: 3px;
+				color: black;
+				width: 120px;
+				font-size: 9pt;
+			}
+
+			#period_selector input[type="checkbox"]:checked + span {
+				background-color: DarkSlateBlue;
+				color: black;
+			}
+		</style>
+	</head>
+	<body>
+		<div class=container>
+			<div class="sidebar">
+				<div id="selector_container">
+				</div>
+			</div>
+			<div class="content">
+				<div id="map_container" align="center">
+					<form id="periods_form" method="post">
+						<div id="period_selector">
+						</div>
+					</form>
+					<img id="map" src="/maps/{{ epoch }}.png">
+				</div>
+			</div>
+			<div class="sidebar">
+				<div id="features_legend">
+				</div>
+			</div>
+		</div>
+		<script src="https://code.jquery.com/jquery-3.6.0.min.js">
+		</script>
+		<script>
+			function updatePageContent(sortByValue, periodValue) {
+				function generateSelectorContainer() {
+					var mapsForm = document.getElementById('maps_form')
+					if (mapsForm) {
+						var formData = new FormData(mapsForm)
+					} else {
+						var formData = new FormData()
+					}
+					
+					formData.append('SelectorSortBy', sortByValue)
+					formData.append('SelectorPeriod', periodValue)
+					
+					const url = `/get_selector_container_template`
+					
+					fetch(url, {
+						method: 'POST',
+						body: formData
+					})
+					.then(response => response.text())
+					.then(html => {
+						document.querySelector(`div[id="selector_container"]`).innerHTML = html;
+					})
+					
+					generateEpochsContainer();
+				}
+
+				function generateEpochsContainer() {
+					var formData = new FormData()
+					
+					formData.append('EpochsSortBy', sortByValue)
+					formData.append('EpochsPeriod', periodValue)
+					
+					const url = `/get_epochs_container_template`
+					
+					fetch(url, {
+						method: 'POST',
+						body: formData
+					})
+					.then(response => response.text())
+					.then(html => {
+						document.querySelector(`div[id="period_selector"]`).innerHTML = html
+
+						listenSelectorContainer()
+					})
+				}
+				
+				function listenSelectorContainer() {
+					var checkboxes = document.querySelectorAll(`input[type="checkbox"][class="map_selector"]`)
+					var periodCheckboxes = document.querySelectorAll(`input[type="checkbox"][name="period"]`)
+					
+					var allCheckboxes = [...checkboxes, ...periodCheckboxes]
+					
+					allCheckboxes.forEach(function(checkbox) {
+						checkbox.addEventListener('change', function() {
+							var formData = new FormData(document.getElementById('maps_form'))
+							formData.append('sortBy', sortByValue)
+							
+							var activePeriods = document.querySelectorAll(`input[type="checkbox"][name="period"]:not([value="${periodValue}"]):checked`)
+							if (activePeriods.length) {
+								var activePeriod = document.querySelector(`input[type="checkbox"][name="period"]:not([value="${periodValue}"]):checked`).value
+								formData.append('period', activePeriod)
+							} else {
+								formData.append('period', periodValue)
+							}
+							
+							var map = document.getElementById("map")
+							
+							$.ajax({
+								type: 'POST',
+								url: '',
+								data: formData,
+								processData: false,
+								contentType: false,
+								success: function(response) {
+									map.src = "/maps/" + response.file
+									formData.append('cache', JSON.stringify(response.cache))
+									
+									const url = `/get_features_legend_template`;
+							
+									fetch(url, {
+										method: 'POST',
+										body: formData
+									})
+									.then(response => response.text())
+									.then(html => {
+										document.querySelector(`div[id="features_legend"]`).innerHTML = html;
+									})
+								}
+							})
+						})
+					})
+				}
+				
+				generateSelectorContainer()
+			}
+			
+			updatePageContent('{{ sort_by }}', '{{ epoch }}')
+		</script>
+		<script>
+			function elementCollapse(value, id) {
+				var thisElement = document.getElementById(id)
+				var elementName = id.split("_").slice(1).join("_")
+				var elementToCollapse = document.querySelector(`div[name="${elementName}"][id="features_selector"]`)
+				if (value == "▲") {
+					thisElement.value = "▼"
+					thisElement.style.background = "White"
+					elementToCollapse.style.display = "none"
+				} else if (value == "▼") {
+					thisElement.value = "▲"
+					thisElement.style.background = "Gold"
+					elementToCollapse.style.display = "grid"
+				}
+			}
+			
+			function Selector(id) {
+				if (id.split("_").length == 2) { // карта
+					var parentElement = document.getElementById(id)
+					var childrenElements = document.querySelectorAll(`[id^="${id}_"]`)
+					console.log(childrenElements)
+					
+					if (parentElement.checked) { // карта выбирается
+						var otherElements = document.querySelectorAll(`input[type="checkbox"][class="map_selector"]`) // уберём все остальные элементы
+						for (const otherElement of otherElements) {
+							otherElement.checked = false
+						}
+						
+						for (const childElement of childrenElements) { // выберем все дочерние
+							childElement.checked = true
+						}
+						parentElement.checked = true
+					} else { // карта убирается
+						for (const childElement of childrenElements) { // уберём все дочерние
+							childElement.checked = false
+						}
+						parentElement.checked = false
+					}
+				} else if (id.split("_").length == 3) { // признак
+					var parentElements = Array.from(document.querySelectorAll(`input[type="checkbox"][class="map_selector"]`)).filter(function(parentElement) { // уберём все материнские
+					  return /^[^_]*_?[^_]*$/.test(parentElement.id)
+					})
+					for (const parentElement of parentElements) {
+						parentElement.checked = false
+					}
+				}
+			}
+		</script>
+	</body>
+</html>
