@@ -39,23 +39,20 @@ def img_builder(entries, features, file_name):
         return res_img
 
     def average_areals(images, colours):
-        res_img = np.zeros((images.shape[1], images.shape[2], 4))
-
-        if len(images) > 1:
-            imgs = np.stack(images, axis=2)
-
-            cache = np.unique(imgs.reshape(imgs.shape[0] * imgs.shape[1], -1), axis=0)
+        if images.shape[1] > 1:
+            cache, indices = np.unique(images, axis=0, return_inverse=True)
             colours_cache = list(map(lambda arr: colour_getter(arr, colours), cache))
-            res_colours = [np.append(c[-1], 255) if c[-1].shape[0] == 3 else c[-1] for c in colours_cache]
+            res_colours = np.array([np.append(c[-1], 255) if c[-1].shape[0] == 3 else c[-1] for c in colours_cache])
+            res_img = res_colours[indices]
 
-            for i, unique_array in enumerate(cache):
-                mask = np.all(imgs == unique_array, axis=2)
-                res_img[mask] = res_colours[i]
-
-        elif len(images) == 1:
+        elif images.shape[1] == 1:
+            res_img = np.zeros((images.shape[0], 4))
             colour = np.append(np.array(colours[0]), 255)
             res_img[images[0]] = colour
             colours_cache = []
+
+        res_img = res_img.reshape((969, 984, 4))
+        res_img = np.transpose(res_img, (1, 0, 2))
 
         return res_img, colours_cache
 
@@ -95,7 +92,13 @@ def img_builder(entries, features, file_name):
 
     if areals:
         areals_colours = list(map(hex_to_rgb, areals_colours))
-        res, colours_cache = average_areals(np.stack(list(map(bin_to_array, areals))), areals_colours)
+        areals_2D = np.stack(list(map(bin_to_array, areals)))
+        transposed_areals = areals_2D.transpose(2, 1, 0)
+        final_areals = transposed_areals.reshape(-1, transposed_areals.shape[2])
+        res, colours_cache = average_areals(
+            final_areals,
+            areals_colours
+        )
     else:
         res = np.zeros((984, 969, 4))
 
