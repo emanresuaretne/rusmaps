@@ -244,13 +244,27 @@
 					.then(response => response.text())
 					.then(html => {
 						document.querySelector(`div[id="period_selector"]`).innerHTML = html
-
-						listenSelectorContainer()
+						let checkboxes = document.querySelectorAll(`input[type="checkbox"][class="map_selector"]`)
+						
+						function checkForCheckboxes() {
+							if (checkboxes.length === 0) {
+								console.log('Ничего не найдено. Повторный поиск...')
+								setTimeout(() => {
+									checkboxes = document.querySelectorAll(`input[type="checkbox"][class="map_selector"]`)
+									checkForCheckboxes()
+								}, 100)
+							} else {
+								console.log('Элементы найдены')
+							}
+						}
+						
+						checkForCheckboxes()
+						
+						listenSelectorContainer(checkboxes)
 					})
 				}
 				
-				function listenSelectorContainer() {
-					var checkboxes = document.querySelectorAll(`input[type="checkbox"][class="map_selector"]`)
+				function listenSelectorContainer(checkboxes) {
 					var periodCheckboxes = document.querySelectorAll(`input[type="checkbox"][name="period"]`)
 					
 					var allCheckboxes = [...checkboxes, ...periodCheckboxes]
