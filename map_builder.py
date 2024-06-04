@@ -46,9 +46,9 @@ def img_builder(entries, features, file_name):
             res_img = res_colours[indices]
 
         elif images.shape[1] == 1:
-            res_img = np.zeros((images.shape[0], 4))
             colour = np.append(np.array(colours[0]), 255)
-            res_img[images[0]] = colour
+            res_colours = np.stack((np.zeros(4), colour))
+            res_img = res_colours[images.reshape(-1).astype("int")]
             colours_cache = []
 
         res_img = res_img.reshape((969, 984, 4))
